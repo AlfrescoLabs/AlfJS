@@ -1,5 +1,8 @@
-## AlfJS
+# AlfJS
 A JavaScript client for the Alfresco ECM.
+
+# Usage
+*TODO:* This project doesn't have any working code yet.
 
 # Building AlfJS
 
