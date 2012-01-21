@@ -1,0 +1,1 @@
+require('alfjs-core/core');
