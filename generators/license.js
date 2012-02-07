@@ -1,6 +1,6 @@
 // ==========================================================================
-// Project:  Ember Data
-// Copyright: ©2011 Living Social Inc. and contributors.
-// License:   Licensed under MIT license (see license.js)
+// Project:  AlfJS
+// Copyright: ©2012 Alfresco Software, Inc. and contributors.
+// License:   Licensed under LGPL license (see http://www.gnu.org/licenses/lgpl.html)
 // ==========================================================================
 

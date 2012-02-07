@@ -1,22 +1,15 @@
 if ('undefined' === typeof AlfJS) {
 	AlfJS = { toString: function(){return "AlfJS";}};
+	
 	// aliases needed to keep minifiers from removing the global context
 	if ('undefined' !== typeof window) {
 	  window.AlfJS = AlfJS;
 	}
+	
+	if ('undefined' !== typeof exports) {
+	  exports.AlfJS = AlfJS;
+	}
 }
-var my = this;	
-var _private = my._private = my._private || {},
-		_seal = my._seal = my._seal || function () {
-			delete my._private;
-			delete my._seal;
-			delete my._unseal;
-		},
-		_unseal = my._unseal = my._unseal || function () {
-			my._private = _private;
-			my._seal = _seal;
-			my._unseal = _unseal;
-		};
 	
 /**
   @private
@@ -42,7 +35,7 @@ function privateMethod(obj) {
 	// Do something.
 	console.log("privateMethod() called.")
 	return "hello";
-};
+}
 	
 /**
   @private
@@ -62,9 +55,42 @@ AlfJS.moduleProperty = 12345;
   @param {Object} obj A parameter
   @returns {Boolean}
 */	
+AlfJS.callPrivateMethod = function(obj) {
+	// Do something.
+	console.log("callPrivateMethod() called.");
+	return privateMethod(obj);
+};
+
+
+/**
+  @function
+  
+  Returns true.
+
+  @param {Object} obj A parameter
+  @returns {Boolean}
+*/	
 AlfJS.moduleFunction = function(obj) {
 	// Do something.
 	console.log("moduleFunction() called.");
 	return true;
 };
+
+
+/**
+  @function
+  
+  Creates a connection to a given host. Requires a configuration object to supply the necessary connection details.
+
+  @param {Object} obj A configuration object.
+  
+  @returns {AlfJS} An initialized AlfJS object.
+  
+  @see AlfJS.setConfig()
+*/	
+AlfJS.createConnection = function(config) {	
+	var ret = new AlfJS.Connection(config);
 	
+	return ret;
+};
+

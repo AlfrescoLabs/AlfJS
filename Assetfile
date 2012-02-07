@@ -1,8 +1,8 @@
 require "rake-pipeline-web-filters"
-
-
+require "rake-pipeline"
+  
 input "packages"
-output "tests/source"
+output "tests"
 
 match "*/{lib,tests}/**/*.js" do
   minispade :rewrite_requires => true, :module_id_generator => proc { |input|
@@ -15,23 +15,26 @@ match "*/{lib,tests}/**/*.js" do
   }
 
   concat do |filename|
-    filename =~ %r{/tests/} ? "alfjs-tests.js" : "alfresco.js"
+    filename =~ %r{/tests/} ? "source/alfjs-tests.js" : "source/alfresco.js"
   end
 end
 
-
+=begin
 # Hack to ignore certain files
 
 match "**/*.{json,md}" do
-  filter ConcatFilter, "trash"
+  filter ConcatFilter, "source/trash"
 end
 
 match "**/README" do
-  filter ConcatFilter, "trash"
+  filter ConcatFilter, "source/trash"
 end
 
 match "*/*.js" do
-  filter ConcatFilter, "trash"
+  filter ConcatFilter, "source/trash"
 end
 
+=end
+
 # vim: filetype=ruby
+
