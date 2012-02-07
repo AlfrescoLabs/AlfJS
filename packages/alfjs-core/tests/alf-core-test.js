@@ -52,5 +52,28 @@ describe("BasicTest", function(){
         });
 
     });
+
+    it("can login to an Alfresco server", function(){
+        var conn = AlfJS.createConnection({
+			hostname: 'x.local',
+			login: 'admin',
+			password: 'admin',
+			protocol: 'http',
+			port: 8080,
+			serviceBase: 'alfresco/service/'
+		});
+        var _self = this;
+
+        conn.login(function(){
+            _self.ticket = conn._LOGIN_TICKET;
+        });
+
+        waits(1000);
+
+        runs(function(){
+            expect(this.ticket.substring(0,6)).toEqual('TICKET');
+        })
+
+    });
 	
 });

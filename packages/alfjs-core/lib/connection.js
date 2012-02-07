@@ -16,12 +16,18 @@ require('alfjs-utils/http');
 	password: 's3cr3t'
   }
 */
-AlfJS.Connection = function(config) {	
+AlfJS.Connection = function(config) {
+    this._LOGIN_TICKET = undefined;
+
 	this._CONFIG = config;
 	
-	this._CONFIG.url = config.protocol + '://' + config.hostname + '/' + config.serviceBase;
-	
-	this.http = AlfJS.ajax;
+	var url = config.protocol + '://' + config.hostname + ':' + (config.port || 80) + '/' + config.serviceBase;
+
+    this._CONFIG.baseUrl = url;
+
+    this.SVC = {
+        login: url+'api/login'
+    }
 };
 
 var Connection = AlfJS.Connection.prototype;
@@ -30,6 +36,30 @@ Connection.getConfig = function() {
 	return this._CONFIG;
 };
 
-Connection.login = function() {
-	
+Connection.setTicket = function(ticketData) {
+    this._LOGIN_TICKET = ticketData.data.ticket;
+};
+
+Connection.login = function(cbSuccess, cbError) {
+    var loginData = {
+            username: this._CONFIG.login,
+            password: this._CONFIG.password
+    };
+
+    var _self = this;
+
+    AlfJS.request({
+        url: this.SVC.login,
+        type: 'json',
+        method: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify(loginData),
+        success: function(data){
+            _self.setTicket(data);
+            cbSuccess();
+        },
+        error: function(err) {
+            cbError(err);
+        }
+    });
 };
