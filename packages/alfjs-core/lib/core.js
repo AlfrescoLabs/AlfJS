@@ -88,9 +88,7 @@ AlfJS.moduleFunction = function(obj) {
   
   @see AlfJS.setConfig()
 */	
-AlfJS.createConnection = function(config) {	
-	var ret = new AlfJS.Connection(config);
-	
-	return ret;
+AlfJS.createConnection = function(config) {
+	return new AlfJS.Connection(config);
 };
 
