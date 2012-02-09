@@ -1,12 +1,22 @@
 describe("BasicTest", function(){
 
     var conn;
+    var conn2;
 
 	beforeEach(function(){
 	    conn = AlfJS.createConnection({
 			hostname: 'x.local',
 			login: 'admin',
 			password: 'admin',
+			protocol: 'http',
+			port: 8080,
+			serviceBase: 'alfresco/service/'
+		});
+
+        conn2 = AlfJS.createConnection({
+			hostname: 'x.local',
+			login: 'admin',
+			password: 'blah',
 			protocol: 'http',
 			port: 8080,
 			serviceBase: 'alfresco/service/'
@@ -76,7 +86,24 @@ describe("BasicTest", function(){
         runs(function(){
             expect(this.ticket.substring(0,6)).toEqual('TICKET');
             expect(conn.getTicket().substring(0,6)).toEqual('TICKET');
-            console.log("Test ticket:"+conn.getTicket());
+        });
+    });
+
+    it("calls the error callback when the login is invalid.", function(){
+
+        var _self = this;
+
+        conn2.login(function(){
+            _self.ticket = conn.getTicket();
+        },function(err){
+            _self.error = JSON.parse(err.responseText);
+        });
+
+        waits(1000);
+
+        runs(function(){
+            console.log(this.error);
+            expect(this.error.status.code).toEqual(403);
         });
     });
 
@@ -113,5 +140,34 @@ describe("BasicTest", function(){
             expect(this.data.totalRecords).toBeDefined();
         });
     });
-	
+
+    it("can retrieve a nodes by its nodeRef", function() {
+
+        var _self = this;
+        var ref = 'workspace://SpacesStore/80aaedad-cf8b-42f4-a3f4-88dc3c9f9d3b';
+
+        conn.login();
+
+        waits(1000);
+
+        runs(function() {
+
+            conn.node(ref,
+               function(data) {
+                   _self.data = data;
+               }, // end success function
+
+               function(err) {
+                   //error funciton
+               } // end error function
+            ); // end conn.docList
+        });
+
+
+        waits(1000);
+
+        runs(function(){
+            expect(this.data.item.node.nodeRef).toEqual(ref);
+        });
+    });
 });
