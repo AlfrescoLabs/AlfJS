@@ -1,14 +1,110 @@
 # AlfJS
-A JavaScript client for the Alfresco ECM.
+A simple, low-level JavaScript client for the Alfresco ECM.
 
 # Usage
-*TODO:* This project doesn't have any working code yet.
+
+## Establish a connection.
+```javascript
+
+var conn = AlfJS.createConnection({
+			hostname: 'localhost',
+			login: 'admin',
+			password: 'admin',
+			protocol: 'http',
+			port: 8080,
+			serviceBase: 'alfresco/service/'
+		});
+
+```
+
+## Login
+```javascript
+
+conn.login(function(data){
+    console.log("Success!");
+},function(err){
+    console.log("Oops!");
+});
+
+```
+
+## List User Sites
+
+```javascript
+
+var _self = this;
+
+conn.getUserSites(function(data){
+    _self.data = data;
+    console.log("The first site on the list is " + data[0].title);
+}, function(err){
+    console.log("Oops!");
+});
+
+```
+
+## List All Sites
+
+```javascript
+
+var _self = this;
+
+conn.getSites(function(data){
+    _self.data = data;
+    console.log("The first site on the list is " + data[0].title);
+}, function(err){
+    console.log("Oops!");
+});
+
+```
+
+## Get a sites' docLib
+
+```javascript
+
+var _self = this;
+conn.getDocList({
+   site: 'acme',
+   model: 'cm:content',
+   container: 'documentLibrary',
+   folderPath: 'News/'
+   },
+   function(data) {
+        _self.data = data;
+   }, // end success function
+
+   function(err) {
+       console.log("Oops!");
+   } // end error function
+); // end conn.docList
+
+```
+
+## Get a specific Node
+
+```javascript
+
+var _self = this;
+var ref = 'workspace://SpacesStore/80aaedad-cf8b-42f4-a3f4-88dc3c9f9d3b';
+
+conn.getNode(ref,
+   function(data) {
+       _self.data = data;
+   }, // end success function
+
+   function(err) {
+       //error function
+   } // end error function
+); // end conn.getNode
+
+
+```
 
 # Building AlfJS
 
 1. Run `rake` to build AlfJS. Two builds will be placed in the `dist/` directory.
   * `alfresco.js` and `alfresco.min.js` - unminified and minified
-    builds of Ember.js
+    builds of AlfJS.
 
 If you are building under Linux, you will need a JavaScript runtime for
 minification. You can either install nodejs or `gem install
@@ -24,6 +120,6 @@ This project [Jasmine](http://pivotal.github.com/jasmine/) for BDD testing.
 
 3. Run `bundle` inside the project root to install the gem dependencies.
 
-4. To start the development server, run `bundle exec rackup`.
+4. To start the development server, run `bundle exec rakep`.
 
-5. Then visit: `http://localhost:9292/tests/index.html`. 
+5. Then visit: `http://localhost:9292`.

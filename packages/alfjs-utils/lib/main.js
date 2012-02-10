@@ -1,3 +1,3 @@
-require('alfjs-core/core');
-require('alfjs-utils/reqwest');
+require('alfjs-vendor/reqwest');
 require('alfjs-utils/http');
+require('alfjs-core/core');

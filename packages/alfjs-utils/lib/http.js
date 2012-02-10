@@ -1,5 +1,5 @@
 require('alfjs-core/core');
-require('alfjs-utils/reqwest');
+require('alfjs-vendor/reqwest');
 
 //Adds $.xhr and jQuery-like $.ajax methods to the prescribed namespace.
 //Inspired from David Flanagans excellent cross-platform utils http://www.davidflanagan.com/javascript5/display.php?n=20-1&f=20/01.js

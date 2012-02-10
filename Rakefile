@@ -57,16 +57,16 @@ end
 # Create alfjs:package tasks for each of the Ember packages
 # eg. %w(package1 package2 package3)
 namespace :alfjs do
-  %w(core).each do |package|
+  %w(vendor core utils).each do |package|
     task package => compile_package_task("alfjs-#{package}", "alfjs-#{package}")
   end
 end
 
 # Create a build task that depends on all of the package dependencies
-task :build => ["alfjs:core"]
+task :build => ["alfjs:vendor", "alfjs:core", "alfjs:utils"]
 
 distributions = {
-  "alfresco" => ["alfjs-core"]
+  "alfresco" => ["alfjs-vendor", "alfjs-core", "alfjs-utils"]
 }
 
 distributions.each do |name, libraries|

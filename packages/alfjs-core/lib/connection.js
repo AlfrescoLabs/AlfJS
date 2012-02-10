@@ -1,5 +1,22 @@
 require('alfjs-core/core');
 require('alfjs-utils/http');
+
+/*
+    AlfJS.Connection is a low-level API for accessing Alfresco services.
+    It does not offer any high-level models, ORM or the like.
+
+    DEVELOPER CONVENTIONS
+
+    Any AlfJS.Connection methods that invoke repository-side services MUST be named such that the function is
+    preceded by a verb that maps into CRUD and hence the HTTP method used to invoke said service.
+
+    eg.
+        getNode(); // HTTP GET
+        createNode(); // HTTP PUT
+        deleteNode(); // HTTP DELETE
+        updateNode(); // HTTP POST
+*/
+
 /**
   @function
   
@@ -21,7 +38,9 @@ AlfJS.Connection = function(config) {
     this._LOGIN_TICKET = undefined;
 
 	this._CONFIG = config;
-	
+
+    config.format = config.format || 'json';
+
 	var url = config.protocol + '://' + config.hostname + ':' + (config.port || 80) + '/' + config.serviceBase;
 
     this._CONFIG.baseUrl = (config.prefix || '') + url;
@@ -59,6 +78,23 @@ Connection.SVC = {
             contentType: 'application/json'
         }
 
+    },
+    people: {
+        sites: {
+            endpoint: 'api/people',
+            method: 'get',
+            type: 'json',
+            contentType: 'application/json'
+        }
+    },
+
+    sites: {
+        sites: {
+            endpoint: 'api/sites',
+            method: 'get',
+            type: 'json',
+            contentType: 'application/json'
+        }
     }
 };
 
@@ -115,20 +151,59 @@ Connection.getTicket = function() {
 Connection.invoke = function(ctx) {
     var svc = this.SVC[ctx.service][ctx.action];
     var config = this.getConfig();
-    var format = config.format || 'json';
+    var format = config.format;
 
+    var data = ctx.data || {};
+    var params = ctx.params || {};
     var path = ctx.path || '';
 
+    var paramString = '';
+
+    // JSONP is invoked via a GET request. That means we need to make sure we inject the auth ticket in the correct manner.
+    // Passing the ticket via the 'data' hash is good for any invocation that uses GET.
+    // Otherwise, use a separate 'params' hash to pass along any necessary request parameters.
+
+    // TODO This method of identifying requests is probably not 100% correct.
+    // TODO Consider using something like useJSONP:true|false
+
     if (ctx.service != 'authentication') {
-        path += '?alf_ticket='+this.getTicket();
+        if (format == 'jsonp') {
+            data.alf_ticket=this.getTicket();
+        } else {
+            params.alf_ticket=this.getTicket();
+        }
+    }
+
+    var key = '';
+
+    // Merge params into data on GETor JSONP requests.
+    if (svc.method == 'get' || format == 'jsonp') {
+
+        for (key in params) {
+            data[key] = params[key];
+        }
+    }
+
+    // We want to pass the JSON payload as a string for regular json requests.
+    if (svc.method == 'post' && format == 'json') {
+        data = JSON.stringify(data);
+    }
+
+    // Construct additional URL parameters from the 'params' hash.
+    for (key in params) {
+        paramString += '&'+key+'='+params[key];
+    }
+
+    if (paramString.substring(0,1) == '&') {
+        paramString = '?'+paramString.substring(1)
     }
 
     var request = {
-        url: this._CONFIG.baseUrl + svc.endpoint + path,
+        url: this._CONFIG.baseUrl + svc.endpoint + path + paramString,
         type: svc.type || 'json',
         method: svc.method || 'get',
         contentType: svc.contentType || undefined,
-        data: ctx.data,
+        data: data,
         success: ctx.success,
         error: ctx.error
     };
@@ -136,8 +211,7 @@ Connection.invoke = function(ctx) {
     // Check that the desired format is jsonp and that this service is configured for JSON (vs. XML) as only JSON services can be wrapped in a callback.
     if (format == 'jsonp' && svc.type == 'json') {
         request.type = 'jsonp';
-        request.jsonp = 'alf_callback';
-        request.jsonpCallback = 'CbAlfjs';
+        request.jsonpCallback = 'alf_callback';
     }
 
     AlfJS.request(request);
@@ -153,17 +227,26 @@ Connection.invoke = function(ctx) {
   @param {Function} cbError Callback to invoke when login fails.
 */
 Connection.login = function(cbSuccess, cbError) {
-    var loginData = {
-            username: this._CONFIG.login,
-            password: this._CONFIG.password
+
+    var config = this.getConfig();
+
+    var loginDataPOST = {
+            username: config.login,
+            password: config.password
+    };
+
+    var loginDataGET = {
+            u: config.login,
+            pw: config.password
     };
 
     var _self = this;
 
-    this.invoke({
+    var cfg = {
         service: 'authentication',
         action: 'login',
-        data: JSON.stringify(loginData),
+        data: (this.getConfig().format == 'json')? loginDataPOST : loginDataGET,
+        params: {format:'json'},
         success: function(data){
             _self.setTicket(data);
             if (cbSuccess) {
@@ -175,7 +258,9 @@ Connection.login = function(cbSuccess, cbError) {
                 cbError(err);
             }
         }
-    })
+    };
+
+    this.invoke(cfg)
 };
 
 
@@ -224,7 +309,7 @@ Connection.logout = function(cbSuccess, cbError) {
  @param {Function} cbSuccess Callback function invoked when action succeeds.
  @param {Function} cbError Callback function invoked when action fails.
 */
-Connection.docList = function(ctx, cbSuccess, cbError) {
+Connection.getDocList = function(ctx, cbSuccess, cbError) {
     var site = ctx.site;
 
     var model = ctx.model || 'cm:content';
@@ -259,7 +344,7 @@ Connection.docList = function(ctx, cbSuccess, cbError) {
  @param {Function} cbSuccess Callback function invoked when action succeeds.
  @param {Function} cbError Callback function invoked when action fails.
 */
-Connection.node = function(nodeRef, cbSuccess, cbError) {
+Connection.getNode = function(nodeRef, cbSuccess, cbError) {
     // convert workspace://SpacesStore... to workspace/SpacesStore...
     var scrubbedNodeRef = nodeRef.replace(':/','');
 
@@ -278,5 +363,67 @@ Connection.node = function(nodeRef, cbSuccess, cbError) {
             }
         } // end error function
     }); // end invoke call
+};
 
+/**
+  @function
+
+  Retrieves the sites the user explicitly belongs to.
+
+  @param {Function} cbSuccess Callback to invoke when login successful.
+
+  @param {Function} cbError Callback to invoke when login fails.
+*/
+Connection.getUserSites = function(cbSuccess, cbError) {
+
+    var config = this.getConfig();
+
+    var cfg = {
+        service: 'people',
+        action: 'sites',
+        path: config.username + '/sites',
+        success: function(data){
+            if (cbSuccess) {
+                cbSuccess(data);
+            }
+        },
+        error: function(err) {
+            if (cbError) {
+                cbError(err);
+            }
+        }
+    };
+
+    this.invoke(cfg)
+};
+
+/**
+  @function
+
+  Retrieves the all sites in the repository.
+
+  @param {Function} cbSuccess Callback to invoke when login successful.
+
+  @param {Function} cbError Callback to invoke when login fails.
+*/
+Connection.getSites = function(cbSuccess, cbError) {
+
+    var config = this.getConfig();
+
+    var cfg = {
+        service: 'sites',
+        action: 'sites',
+        success: function(data){
+            if (cbSuccess) {
+                cbSuccess(data);
+            }
+        },
+        error: function(err) {
+            if (cbError) {
+                cbError(err);
+            }
+        }
+    };
+
+    this.invoke(cfg)
 };

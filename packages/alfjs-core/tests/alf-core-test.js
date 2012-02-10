@@ -2,6 +2,7 @@ describe("BasicTest", function(){
 
     var conn;
     var conn2;
+    var conn3;
 
 	beforeEach(function(){
 	    conn = AlfJS.createConnection({
@@ -21,18 +22,16 @@ describe("BasicTest", function(){
 			port: 8080,
 			serviceBase: 'alfresco/service/'
 		});
-	});
-	
-	it("has equal values", function(){
-		expect(true).toEqual(true);
-	});
-	
-	it("has a moduleProperty with value '12345'", function() {
-		expect(AlfJS.moduleProperty).toEqual(12345);
-	});
-	
-	it("has a callPrivateMethod that returns 'hello'", function(){
-		expect(AlfJS.callPrivateMethod()).toEqual('hello');
+
+        conn3 = AlfJS.createConnection({
+			hostname: 'x.local',
+			login: 'admin',
+			password: 'admin',
+			protocol: 'http',
+			port: 8080,
+			serviceBase: 'alfresco/service/',
+            format: 'jsonp'
+		});
 	});
 
 	it("has a createConnections method that can support multiple AlfJS.Connection instances", function(){
@@ -102,7 +101,6 @@ describe("BasicTest", function(){
         waits(1000);
 
         runs(function(){
-            console.log(this.error);
             expect(this.error.status.code).toEqual(403);
         });
     });
@@ -117,7 +115,7 @@ describe("BasicTest", function(){
 
         runs(function() {
 
-            conn.docList({
+            conn.getDocList({
                site: 'acme',
                model: 'cm:content',
                container: 'documentLibrary',
@@ -128,9 +126,9 @@ describe("BasicTest", function(){
                }, // end success function
 
                function(err) {
-                   //error funciton
+                   //error function
                } // end error function
-            ); // end conn.docList
+            ); // end conn.getDocList
         });
 
 
@@ -152,15 +150,15 @@ describe("BasicTest", function(){
 
         runs(function() {
 
-            conn.node(ref,
+            conn.getNode(ref,
                function(data) {
                    _self.data = data;
                }, // end success function
 
                function(err) {
-                   //error funciton
+                   //error function
                } // end error function
-            ); // end conn.docList
+            ); // end conn.getNode
         });
 
 
@@ -168,6 +166,65 @@ describe("BasicTest", function(){
 
         runs(function(){
             expect(this.data.item.node.nodeRef).toEqual(ref);
+        });
+    });
+
+    it("can retrieve a nodes by its nodeRef via JSONP", function() {
+
+        var _self = this;
+        var ref = 'workspace://SpacesStore/80aaedad-cf8b-42f4-a3f4-88dc3c9f9d3b';
+
+        conn3.login();
+
+        waits(1000);
+
+        runs(function() {
+
+            conn3.getNode(ref,
+               function(data) {
+                   _self.data = data;
+               }, // end success function
+
+               function(err) {
+                   //error function
+               } // end error function
+            ); // end conn.getNode
+        });
+
+
+        waits(1000);
+
+        runs(function(){
+            expect(this.data.item.node.nodeRef).toEqual(ref);
+        });
+    });
+
+    it("can retrieve a list of sites for the current user", function() {
+
+        var _self = this;
+
+        conn.login();
+
+        waits(1000);
+
+        runs(function() {
+
+            conn.getSites(
+               function(data) {
+                   _self.data = data;
+               }, // end success function
+
+               function(err) {
+                   //error function
+               } // end error function
+            ); // end conn.getSites
+        });
+
+
+        waits(1000);
+
+        runs(function(){
+            expect(this.data[0].url).toBeDefined();
         });
     });
 });
