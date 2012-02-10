@@ -1,19 +1,22 @@
 # AlfJS
 A simple, low-level JavaScript client for the Alfresco ECM.
 
+# Download AlfJS
+The most recent reasonably stable build may be found in the [Downloads Page](https://github.com/Alfresco/AlfJS/downloads)
+
 # Usage
 
 ## Establish a connection.
 ```javascript
 
 var conn = AlfJS.createConnection({
-			hostname: 'localhost',
-			login: 'admin',
-			password: 'admin',
-			protocol: 'http',
-			port: 8080,
-			serviceBase: 'alfresco/service/'
-		});
+    hostname: 'localhost',
+    login: 'admin',
+    password: 'admin',
+    protocol: 'http',
+    port: 8080,
+    serviceBase: 'alfresco/service/'
+});
 
 ```
 
@@ -102,7 +105,13 @@ conn.getNode(ref,
 
 # Building AlfJS
 
-1. Run `rake` to build AlfJS. Two builds will be placed in the `dist/` directory.
+Following these steps is *only necessary* if you intend to extend and/or contribute to AlfJS.
+
+Visit the [Downloads Page](https://github.com/Alfresco/AlfJS/downloads) to obtain a pre-built version of the JavaScript library.
+
+We assume you have Ruby installed (see "How to Run Tests" below).
+
+1. Run `bundle exec rake` to build AlfJS. Two builds will be placed in the `dist/` directory.
   * `alfresco.js` and `alfresco.min.js` - unminified and minified
     builds of AlfJS.
 
