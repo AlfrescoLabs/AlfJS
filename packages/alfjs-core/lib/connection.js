@@ -178,9 +178,9 @@ Connection.invoke = function(ctx) {
 
     // Merge params into data on GETor JSONP requests.
     if (svc.method == 'get' || format == 'jsonp') {
-
         for (key in params) {
             data[key] = params[key];
+			params = {}; // clear out the params hash as it's no longer needed
         }
     }
 
@@ -314,13 +314,13 @@ Connection.getDocList = function(ctx, cbSuccess, cbError) {
 
     var model = ctx.model || 'cm:content';
     var container = ctx.container || 'documentLibrary'
-    var folder = ctx.folderPath || '';
+    var folder = ctx.folderPath || '/';
 
     if (site) {
         this.invoke({
             service: 'doclib',
             action: 'doclist',
-            path: model + '/site/' + site + '/' + container + '/' + folder,
+            path: model + '/site/' + site + '/' + container + folder,
             success: function(data) {
                 if (cbSuccess) {
                     cbSuccess(data);
