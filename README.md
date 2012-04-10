@@ -64,7 +64,7 @@ conn.getUserSites(function(data){
 
 The returned data will be an object of the form:
 
-```javascript
+```json
 
 [
 {
@@ -146,7 +146,7 @@ conn.getDocList({
 
 The returned data will be an object of the form:
 
-```javascript
+```json
 
 {
    "totalRecords": 15,
@@ -229,7 +229,7 @@ conn.getNode(ref,
 ```
 The returned data will be an object of the form:
 
-```javascript
+```json
 
 {
    "metadata":
