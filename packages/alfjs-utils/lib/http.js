@@ -1,11 +1,67 @@
 require('alfjs-core/core');
 require('alfjs-vendor/reqwest');
 
-//Adds $.xhr and jQuery-like $.ajax methods to the prescribed namespace.
-//Inspired from David Flanagans excellent cross-platform utils http://www.davidflanagan.com/javascript5/display.php?n=20-1&f=20/01.js
-//Includes underscore.js _.each and _.extend methods
-//modified to behave like jQuery's $.ajax(), not complete.
+/*
+	{
+        url: 'http://example.com:8080/alfresco,
+        type: 'json',
+        method: 'get',
+        contentType: 'application/json',
+		headers: {
+			key: 'value'
+		},
+        data: data,
+        success: successCallbackFunction,
+        error: errorCallbackFunction
+    }
+*/
 
-AlfJS.ajax = reqwest.compat;
 
-AlfJS.request = reqwest;
+var root = this;
+
+var isNode = false;
+
+// Detect if running on NodeJS
+if (typeof module !== 'undefined' && module.exports) {
+	
+	var request = require('request');
+	
+	var nodeRequestWrapper = function(req) {
+		
+		// Map inbound request config to outbound request config.
+		
+		var headers = req.headers || {};
+		headers['Content-type']=req.contentType;
+		
+		var json = false;
+		
+		var reqOptions = {
+			url: req.url,
+			method: req.method,
+			headers: headers
+		}
+		
+		if (req.type === 'json') {
+			reqOptions.json = JSON.parse(req.data);
+		} else {
+			reqOptions.body = req.data;
+		}
+		
+		request(reqOptions, function(error, response, body){
+			if (error && req.err) {
+				req.err(error);
+			} else {
+				req.success(body);
+			}
+		}); // end request
+	};
+	
+	AlfJS.request = nodeRequestWrapper;
+	
+} else {
+	// We're running on the browser.
+	AlfJS.request = reqwest;
+	AlfJS.ajax = reqwest.compat;
+}
+
+

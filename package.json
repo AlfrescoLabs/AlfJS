@@ -1,0 +1,26 @@
+{
+    "name": "alfjs",
+    "version": "0.1.0",
+    "main": "alfresco",
+    "description": "An Alfresco client library in JavaScript.",
+    "keywords": [
+        "alfresco"
+    ],
+    "author": {
+        "name": "Luis Sala",
+        "email": "",
+        "web": "http://www.alfresco.com",
+        "twitter": ""
+    },
+    "license": "GPL",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:alfresco/alfjs"
+    },
+    "engines": {
+        "node": ">=0.6.0"
+    },
+    "dependencies": {
+        "request": ""
+    }
+}

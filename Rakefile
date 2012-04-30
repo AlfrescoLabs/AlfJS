@@ -72,12 +72,12 @@ distributions = {
 distributions.each do |name, libraries|
   # Strip out require lines. For the interim, requires are
   # precomputed by the compiler so they are no longer necessary at runtime.
-  file "dist/#{name}.js" => :build do
+  file "dist/web/#{name}.js" => :build do
     puts "Generating #{name}.js"
 
-    mkdir_p "dist"
+    mkdir_p "dist/web"
 
-    File.open("dist/#{name}.js", "w") do |file|
+    File.open("dist/web/#{name}.js", "w") do |file|
       libraries.each do |library|
         file.puts strip_require("tmp/static/#{library}.js")
       end
@@ -85,18 +85,18 @@ distributions.each do |name, libraries|
   end
 
   # Minified distribution
-  file "dist/#{name}.min.js" => "dist/#{name}.js" do
+  file "dist/web/#{name}.min.js" => "dist/web/#{name}.js" do
     require 'zlib'
 
     print "Generating #{name}.min.js... "
     STDOUT.flush
 
-    File.open("dist/#{name}.prod.js", "w") do |file|
-      file.puts strip_ember_assert("dist/#{name}.js")
+    File.open("dist/web/#{name}.prod.js", "w") do |file|
+      file.puts strip_ember_assert("dist/web/#{name}.js")
     end
 
-    minified_code = uglify("dist/#{name}.prod.js")
-    File.open("dist/#{name}.min.js", "w") do |file|
+    minified_code = uglify("dist/web/#{name}.prod.js")
+    File.open("dist/web/#{name}.min.js", "w") do |file|
       file.puts minified_code
     end
 
@@ -104,13 +104,25 @@ distributions.each do |name, libraries|
 
     puts "#{gzipped_kb} KB gzipped"
 
-    rm "dist/#{name}.prod.js"
+    rm "dist/web/#{name}.prod.js"
   end
+
+  # Node.js Distribution
+  file "dist/web/#{name}.js" => :build do
+    puts "Generating Node Distribution #{name}.js"
+
+    mkdir_p "dist/alfjs-node"
+
+    cp "dist/web/#{name}.js", "dist/alfjs-node/#{name}.js"
+
+    cp "package.json", "dist/alfjs-node/package.json"
+  end
+
 end
 
 
 desc "Build AlfJS"
-task :dist => distributions.keys.map {|name| "dist/#{name}.min.js"}
+task :dist => distributions.keys.map {|name| "dist/web/#{name}.min.js"}
 
 desc "Clean build artifacts from previous builds"
 task :clean do

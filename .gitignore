@@ -35,3 +35,4 @@ tmp*.gem
 tmp.bpm
 tmp.spade
 trash
+*node_modules/

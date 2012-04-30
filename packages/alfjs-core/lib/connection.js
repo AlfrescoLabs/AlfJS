@@ -27,12 +27,38 @@ require('alfjs-utils/http');
   {
   	hostname: 'localhost',
   	port: 8080,
-	protocol: 'http', <== Can also be 'https'
+	protocol: 'http', // Can also be 'https'
 	serviceBase: 'alfresco/service/',
 	login: 'userid',
 	password: 's3cr3t',
-    format: 'json'|'jsonp'
+    format: 'json'|'jsonp',
+	headers: {
+		 'X-Sample-SSL-Enabled-Header': 'header value',  // Some ajax and reverse proxies use headers to flag a request as requiring ssl.
+		 'X-Some-Other-Header': 'Some Value'
+	}
   }
+  
+  TODO Update configuration to this:
+  {
+  	hostname: 'localhost',
+  	port: 8080,
+	protocol: ['http']|'https',
+	serviceBase: 'alfresco/service/',
+	login: 'userid',
+	password: 's3cr3t',
+    format: ['json']|'jsonp',
+	headers: {
+		 'X-Sample-SSL-Enabled-Header': 'header value',  // Some ajax and reverse proxies use headers to flag a request as requiring ssl.
+		 'X-Some-Other-Header': 'Some Value'
+	},
+	proxy: {
+		enabled: true|[false],
+		type: ['ajax']|'reverse'|'forward',   // For now, ajax and reverse proxies are treated the same.
+		endpoint: '/example/proxy/endpoint/path',
+		includeProtocol: true|[false],   // Include http:// or https:// in the url.
+	}
+  }
+  
 */
 AlfJS.Connection = function(config) {
     this._LOGIN_TICKET = undefined;
@@ -203,6 +229,7 @@ Connection.invoke = function(ctx) {
         type: svc.type || 'json',
         method: svc.method || 'get',
         contentType: svc.contentType || undefined,
+		headers: this._CONFIG.headers || undefined,
         data: data,
         success: ctx.success,
         error: ctx.error
