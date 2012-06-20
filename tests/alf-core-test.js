@@ -6,25 +6,27 @@ describe("BasicTest", function(){
 
 	beforeEach(function(){
 	    conn = AlfJS.createConnection({
-			hostname: 'x.local',
+			hostname: 'home.sala.us',
 			login: 'admin',
 			password: 'admin',
 			protocol: 'http',
 			port: 8080,
-			serviceBase: 'alfresco/service/'
+			serviceBase: 'alfresco/service/',
+			prefix: '_proxy/'
 		});
 
         conn2 = AlfJS.createConnection({
-			hostname: 'x.local',
+			hostname: 'home.sala.us',
 			login: 'admin',
 			password: 'blah',
 			protocol: 'http',
 			port: 8080,
-			serviceBase: 'alfresco/service/'
+			serviceBase: 'alfresco/service/',
+			prefix: '_proxy/'
 		});
 
         conn3 = AlfJS.createConnection({
-			hostname: 'x.local',
+			hostname: 'home.sala.us',
 			login: 'admin',
 			password: 'admin',
 			protocol: 'http',
@@ -168,7 +170,7 @@ describe("BasicTest", function(){
             expect(this.data.item.node.nodeRef).toEqual(ref);
         });
     });
-
+	/*
     it("can retrieve a nodes by its nodeRef via JSONP", function() {
 
         var _self = this;
@@ -198,7 +200,8 @@ describe("BasicTest", function(){
             expect(this.data.item.node.nodeRef).toEqual(ref);
         });
     });
-
+	*/
+	
     it("can retrieve a list of sites for the current user", function() {
 
         var _self = this;

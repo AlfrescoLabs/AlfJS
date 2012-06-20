@@ -286,9 +286,9 @@ Following these steps is *only necessary* if you intend to extend and/or contrib
 
 Visit the [Downloads Page](https://github.com/Alfresco/AlfJS/downloads) to obtain a pre-built version of the JavaScript library.
 
-We assume you have Ruby installed (see "How to Run Tests" below).
+We assume you have Node.js installed (see "How to Run Tests" below).
 
-1. Run `bundle exec rake` to build AlfJS. Two builds will be placed in the `dist/` directory.
+1. Run `grunt` to build AlfJS. Two builds will be placed in the `dist/web` and `dist/node` directories.
   * `alfresco.js` and `alfresco.min.js` - unminified and minified
     builds of AlfJS.
 
@@ -300,15 +300,17 @@ therubyracer`.
 
 This project [Jasmine](http://pivotal.github.com/jasmine/) for BDD testing.
 
-1. Install Ruby 1.9.2+. There are many resources on the web can help; one of the best is [rvm](http://rvm.beginrescueend.com/).
+1. Install [Node.js](http://nodejs.com/).
 
-2. Install Bundler: `gem install bundler`
+2. Install Grunt: `npm install -g grunt`
 
-3. Run `bundle` inside the project root to install the gem dependencies.
+3. Run `npm install` inside the project root to install the project dependencies.
 
-4. To start the development server, run `bundle exec rakep`.
+4. You can build once by running `grunt`, or run `grunt watch` to build continuously.
 
-5. Then visit: `http://localhost:9292`.
+5. You can run tests by first opening a new terminal window and running `node server`.
+
+6. Run the test suite by visiting: `http://localhost:8000`.
 
 # License
 Copyright (C) 2012 Alfresco Software Limited
