@@ -295,7 +295,7 @@ We assume you have Node.js installed (see "How to Run Tests" below).
 
 # How to Run Tests
 
-This project [Jasmine](http://pivotal.github.com/jasmine/) for BDD testing.
+This project [Jasmine](https://jasmine.github.io/) for BDD testing.
 
 1. Install [Node.js](http://nodejs.com/).
 
